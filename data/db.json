@@ -1,0 +1,26 @@
+{
+  "tasks": [
+    {
+      "id": "1774566963922",
+      "title": "",
+      "video": "",
+      "youtube_channel_id": null,
+      "status": "DIHENTIKAN",
+      "start": "2026-03-26T23:16:03.922Z",
+      "end": null,
+      "repeat": "Tidak Ada",
+      "loop": false,
+      "pid": null
+    }
+  ],
+  "videos": [],
+  "youtube_channels": [],
+  "settings": {
+    "password": "",
+    "timezone": "Asia/Jakarta",
+    "youtube_client_id": "",
+    "youtube_client_secret": "",
+    "youtube_redirect_uri": ""
+  },
+  "upload_tasks": []
+}

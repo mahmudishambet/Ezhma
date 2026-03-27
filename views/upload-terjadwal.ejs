@@ -1,0 +1,181 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+
+<style>
+/* Custom Light Toggle Switch */
+.toggle-checkbox:checked {
+  right: 0;
+  border-color: #3B82F6;
+}
+.toggle-label {
+  width: 2.5rem;
+  height: 1.25rem;
+  background-color: #CBD5E1;
+  border-radius: 9999px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.toggle-label::after {
+  content: '';
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+input:checked + .toggle-label {
+  background-color: #2563EB;
+}
+input:checked + .toggle-label::after {
+  transform: translateX(1.25rem);
+}
+</style>
+
+<main class="flex-1 overflow-y-auto p-8 bg-gray-50 h-full relative">
+    
+    <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center gap-3">
+            <div class="text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">Upload Video Terjadwal</h2>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-4xl mb-10">
+        <form action="/upload-terjadwal" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Judul Video YouTube</label>
+                    <input type="text" name="title" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Masukkan judul video...">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Deskripsi</label>
+                    <textarea name="description" rows="3" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Deskripsi video..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 items-center">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Privasi</label>
+                        <select name="privacy" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer">
+                            <option value="public">Public</option>
+                            <option value="unlisted">Unlisted</option>
+                            <option value="private" selected>Private</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Kategori</label>
+                        <select name="category" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer">
+                            <option value="22" selected>People & Blogs</option>
+                            <option value="20">Gaming</option>
+                            <option value="24">Entertainment</option>
+                            <option value="27">Education</option>
+                            <option value="1">Film & Animation</option>
+                            <option value="2">Autos & Vehicles</option>
+                            <option value="10">Music</option>
+                            <option value="15">Pets & Animals</option>
+                            <option value="17">Sports</option>
+                            <option value="19">Travel & Events</option>
+                            <option value="23">Comedy</option>
+                            <option value="25">News & Politics</option>
+                            <option value="26">Howto & Style</option>
+                            <option value="28">Science & Technology</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Pilih Video Lokal</label>
+                    <select name="video" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <% videos.forEach(vid => { %>
+                            <option value="<%= vid %>"><%= vid %></option>
+                        <% }) %>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-5">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Pilih Channel Tujuan</label>
+                    <select name="channel_id" required class="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <option value="">-- Pilih Channel --</option>
+                        <% channels.forEach(ch => { %>
+                            <option value="<%= ch.id %>"><%= ch.title %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Jadwal Tanggal & Jam (Opsional)</label>
+                    <input type="datetime-local" name="publish_at" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <p class="text-xs text-gray-500 mt-1">Isi agar dijadwalkan cron-job, kosongkan jika ingin instan publish (Private).</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Tags (Pisahkan dengan koma)</label>
+                    <input type="text" name="tags" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="contoh, vlog, gaming">
+                </div>
+                
+                <div class="flex items-center justify-between pt-2 pb-2">
+                    <span class="text-sm font-bold text-gray-700">Aktifkan Monetisasi (Iklan)</span>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="toggleMonet" name="monetization" class="hidden">
+                        <label for="toggleMonet" class="toggle-label"></label>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow transition">
+                        SIMPAN TUGAS UPLOAD
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- List of Scheduled Uploads -->
+    <h3 class="text-lg font-bold text-gray-800 mb-4">Antrean Upload</h2>
+    <div class="bg-white shadow-sm border border-gray-200 rounded-2xl overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-gray-50 text-gray-600 text-xs uppercase font-semibold">
+                <tr>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4">Judul</th>
+                    <th class="px-6 py-4">Channel</th>
+                    <th class="px-6 py-4">Jadwal Eksekusi</th>
+                    <th class="px-6 py-4 text-right">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (uploadTasks.length === 0) { %>
+                    <tr><td colspan="5" class="py-6 text-center text-gray-500">Belum ada tugas upload.</td></tr>
+                <% } else { %>
+                    <% uploadTasks.forEach(task => { %>
+                        <tr class="border-t border-gray-100 hover:bg-gray-50">
+                            <td class="px-6 py-4">
+                                <% if (task.status === 'MENUNGGU') { %> <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">MENUNGGU</span>
+                                <% } else if (task.status === 'PROSES UPLOAD') { %> <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">PROSES</span>
+                                <% } else if (task.status === 'BERHASIL') { %> <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">BERHASIL</span>
+                                <% } else { %> <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">GAGAL</span> <% } %>
+                            </td>
+                            <td class="px-6 py-4 font-semibold text-gray-800 text-sm"><%= task.title %><p class="text-xs text-gray-500 mt-1">Video: <%= task.video %></p></td>
+                            <td class="px-6 py-4 text-sm text-gray-600"><%= task.channel_id %></td>
+                            <td class="px-6 py-4 text-sm text-gray-600"><%= task.publish_at ? new Date(task.publish_at).toLocaleString() : 'Instan' %></td>
+                            <td class="px-6 py-4 text-right">
+                                <form action="/hapus-upload/<%= task.id %>" method="POST" class="inline">
+                                    <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-bold px-3 py-1 bg-red-50 rounded">Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+</main>
+</body>
+</html>

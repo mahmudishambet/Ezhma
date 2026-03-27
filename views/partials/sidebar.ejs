@@ -1,0 +1,46 @@
+<!-- Sidebar -->
+<aside class="w-64 sidebar-bg text-white flex flex-col justify-between py-6 h-full shadow-lg z-20">
+    <div>
+        <div class="text-center px-4 mb-6 mt-4">
+            <!-- Logo SVG EzhmaLive -->
+            <img src="/img/logo.svg" alt="EzhmaLive Logo" class="w-full max-w-[200px] mx-auto drop-shadow-md">
+            <div class="text-[10px] text-purple-300 mt-4 opacity-50" id="realtimeClock">-</div>
+        </div>
+
+        <nav class="flex flex-col gap-1 px-4 mt-8">
+            <a href="/dashboard" class="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition text-sm font-semibold flex items-center gap-2">
+                🏠 Dashboard
+            </a>
+            <a href="/buat-tugas" class="px-4 py-3 rounded-xl hover:bg-white/10 transition text-sm font-semibold flex items-center gap-2 mt-2">
+                ➕ Buat Tugas Live
+            </a>
+            <a href="/berkas-video" class="px-4 py-3 rounded-xl hover:bg-white/10 transition text-sm font-semibold flex items-center gap-2 mt-2">
+                📁 Berkas Video
+            </a>
+            <a href="/upload-terjadwal" class="px-4 py-3 rounded-xl hover:bg-white/10 transition text-sm font-semibold flex items-center gap-2 mt-2">
+                📤 Upload Terjadwal
+            </a>
+            <a href="/pengaturan" class="px-4 py-3 rounded-xl hover:bg-white/10 transition text-sm font-semibold flex items-center gap-2 mt-2">
+                ⚙️ Pengaturan
+            </a>
+        </nav>
+    </div>
+
+    <div class="px-4">
+        <a href="/logout" class="block w-full px-4 py-3 rounded-xl hover:bg-red-500/80 transition text-sm font-semibold text-center mt-2 bg-white/10">
+            🚪 Logout
+        </a>
+    </div>
+</aside>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('realtimeClock').innerText = now.toLocaleString('id-ID', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>

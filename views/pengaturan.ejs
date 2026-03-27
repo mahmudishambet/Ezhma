@@ -1,0 +1,135 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+
+<main class="flex-1 overflow-y-auto p-8 bg-gray-50 h-full relative">
+
+    <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold text-gray-800 flex items-center justify-center gap-3">
+            ⚙️ Pengaturan Aplikasi
+        </h2>
+        <p class="text-gray-500 mt-2">Kelola API, PIN keamanan, dan zona waktu aplikasi</p>
+    </div>
+
+    <!-- YouTube API Settings -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-5xl mx-auto mb-8">
+        <div class="flex items-center gap-3 mb-6">
+            <h3 class="text-xl font-bold text-gray-800">YouTube Integration</h3>
+            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">API</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <!-- API Form -->
+            <div>
+                <form action="/pengaturan/api" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Authorized Redirect URI</label>
+                        <p class="text-xs text-gray-500 mb-2">Copy this URL to Google Cloud Console:</p>
+                        <div class="flex items-center bg-gray-100 rounded border border-gray-200 p-2">
+                            <input type="text" name="redirect_uri" value="<%= settings.youtube_redirect_uri || 'http://localhost:3000/auth/youtube/callback' %>" class="w-full bg-transparent outline-none text-sm text-gray-600 font-mono" readonly>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Client ID</label>
+                        <input type="text" name="client_id" value="<%= settings.youtube_client_id %>" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono text-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Client Secret</label>
+                        <input type="password" name="client_secret" value="<%= settings.youtube_client_secret ? '********' : '' %>" class="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono text-sm" placeholder="Masukkan rahasia baru jika berubah">
+                    </div>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded shadow-md transition text-sm">
+                        Save API Credentials
+                    </button>
+                </form>
+            </div>
+
+            <!-- Connected Channels -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-bold text-gray-700">Connected Channels</h4>
+                    <% if (authUrl) { %>
+                        <a href="<%= authUrl %>" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1.5 px-3 rounded flex items-center gap-1 shadow">
+                            + Add Channel
+                        </a>
+                    <% } else { %>
+                        <span class="text-xs text-red-500 italic">Simpan API Credentials dulu</span>
+                    <% } %>
+                </div>
+
+                <div class="space-y-3">
+                    <% if (channels.length === 0) { %>
+                        <p class="text-sm text-gray-400">Belum ada channel terhubung.</p>
+                    <% } else { %>
+                        <% channels.forEach(ch => { %>
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded border border-gray-200 shadow-sm">
+                                <div class="flex items-center gap-3">
+                                    <img src="<%= ch.thumbnails %>" class="w-10 h-10 rounded-full border border-gray-300" alt="Avatar">
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                                            <%= ch.title %>
+                                            <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-1.5 py-0.5 rounded">Connected</span>
+                                        </p>
+                                        <p class="text-xs text-gray-500">ID: <%= ch.id %></p>
+                                    </div>
+                                </div>
+                                <button class="text-gray-400 hover:text-red-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security & Timezone Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <!-- Keamanan -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="bg-cyan-400 text-white font-bold px-6 py-4 flex items-center gap-2">
+                🔑 Ubah Sandi Admin
+            </div>
+            <div class="p-6">
+                <form action="/pengaturan/sandi" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Sandi Lama</label>
+                        <input type="password" name="old_password" class="w-full px-4 py-2 border border-gray-300 rounded focus:border-cyan-400 focus:outline-none" placeholder="Masukkan sandi lama">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Sandi Baru</label>
+                        <input type="password" name="new_password" class="w-full px-4 py-2 border border-gray-300 rounded focus:border-cyan-400 focus:outline-none" placeholder="Minimal 6 karakter">
+                    </div>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded shadow mt-2">
+                        Ubah Sandi
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Zona Waktu -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="bg-cyan-400 text-white font-bold px-6 py-4 flex items-center gap-2">
+                🌐 Pengaturan Zona Waktu
+            </div>
+            <div class="p-6">
+                <form action="/pengaturan/tz" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Pilih Zona Waktu:</label>
+                        <select name="timezone" class="w-full px-4 py-2 border border-gray-300 rounded focus:border-cyan-400 focus:outline-none bg-white">
+                            <option value="Asia/Jakarta" <%= settings.timezone === 'Asia/Jakarta' ? 'selected' : '' %>>WIB - Waktu Indonesia Barat (UTC+7)</option>
+                            <option value="Asia/Makassar" <%= settings.timezone === 'Asia/Makassar' ? 'selected' : '' %>>WITA - Waktu Indonesia Tengah (UTC+8)</option>
+                            <option value="Asia/Jayapura" <%= settings.timezone === 'Asia/Jayapura' ? 'selected' : '' %>>WIT - Waktu Indonesia Timur (UTC+9)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="bg-cyan-400 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded shadow mt-2">
+                        Simpan Zona Waktu
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>

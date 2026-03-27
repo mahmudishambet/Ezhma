@@ -1,0 +1,334 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+
+<style>
+/* Custom Light Toggle Switch */
+.toggle-checkbox:checked {
+  right: 0;
+  border-color: #7559AC;
+}
+.toggle-label {
+  width: 2.5rem;
+  height: 1.25rem;
+  background-color: #CBD5E1;
+  border-radius: 9999px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.toggle-label::after {
+  content: '';
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+input:checked + .toggle-label {
+  background-color: #7559AC;
+}
+input:checked + .toggle-label::after {
+  transform: translateX(1.25rem);
+}
+</style>
+
+<main class="flex-1 overflow-y-auto p-4 md:p-8 bg-[#F0F2F5] h-full relative font-sans">
+    
+    <div class="max-w-[1100px] mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-2">
+        
+        <!-- Header -->
+        <div class="px-6 py-5 flex justify-between items-center border-b border-gray-100 bg-white">
+            <h2 class="text-xl font-extrabold text-gray-800 tracking-wide">Buat Tugas Live Baru</h2>
+            <!-- "Tips" dihilangkan, sisa tombol close atau back ke dashboard -->
+            <a href="/dashboard" class="text-gray-400 hover:text-gray-600 transition bg-gray-50 hover:bg-gray-100 p-2 rounded-full cursor-pointer">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Content Form -->
+        <form action="/buat-tugas" method="POST" id="streamForm" class="p-6 md:p-8 bg-white">
+            <input type="hidden" name="mode" id="tabMode" value="manual">
+
+            <!-- Tabs Toggle -->
+            <div class="grid grid-cols-2 gap-4 mb-8 bg-gray-50 p-1.5 rounded-xl border border-gray-100">
+                <button type="button" id="tabManual" onclick="setMode('manual')" class="py-3 rounded-lg bg-white shadow-sm text-[#7559AC] font-bold flex justify-center items-center gap-2 cursor-pointer transition ring-1 ring-gray-200">
+                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                    </svg>
+                    Manual (RTMP)
+                </button>
+                <button type="button" id="tabApi" onclick="setMode('api')" class="py-3 rounded-lg bg-transparent hover:bg-gray-100/50 text-gray-500 font-bold flex justify-center items-center gap-2 cursor-pointer transition">
+                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                    </svg>
+                    YouTube API
+                </button>
+            </div>
+
+            <!-- SECTION: MANUAL -->
+            <div id="sectionManual" class="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8">
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Video <span class="text-red-500">*</span></label>
+                        <select name="video" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#7559AC] appearance-none font-medium cursor-pointer">
+                            <option value="">Pilih file video...</option>
+                            <% videos.forEach(vid => { %><option value="<%= vid %>"><%= vid %></option><% }) %>
+                            <option value="dummy.mp4" class="text-orange-500">dummy.mp4 (Dummy Testing)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Judul Stream <span class="text-red-500">*</span></label>
+                        <input type="text" name="title" required placeholder="Masukkan judul stream..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#7559AC] font-medium">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Konfigurasi Stream</label>
+                        <div class="space-y-3 bg-[#f5f8ff] rounded-xl p-2 border border-blue-100">
+                            <div class="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-200 shadow-sm">
+                                <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                </svg>
+                                <input type="text" class="flex-1 bg-transparent border-none text-gray-800 font-semibold focus:outline-none text-sm" value="rtmp://a.rtmp.youtube.com/live2" readonly>
+                            </div>
+                            <div class="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-200 shadow-sm">
+                                <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                </svg>
+                                <input type="password" name="stream_key" required class="flex-1 bg-transparent border-none text-gray-800 font-black tracking-widest focus:outline-none text-sm placeholder-gray-400" placeholder="•••••••••••••••••">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6">
+                        <div class="flex items-center gap-3 mb-5">
+                            <h3 class="text-sm font-bold text-gray-800">Pengaturan Jadwal</h3>
+                            <span class="text-[11px] font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full border border-gray-200">Server time: <%= new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) %> WIB</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between mt-2 mb-4 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm">
+                            <span class="text-sm font-bold text-gray-700">Loop Video Secara Otomatis</span>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="toggleLoop" name="loop_video" class="hidden" checked>
+                                <label for="toggleLoop" class="toggle-label"></label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-5 mb-4 mt-6">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Mulai Stream (Opsional)</label>
+                                <input type="datetime-local" name="start_time" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#7559AC] text-sm font-medium">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Berhenti Stream (Auto)</label>
+                                <input type="datetime-local" name="end_time" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#7559AC] text-sm font-medium">
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Pengulangan Tugas (Recurrence)</label>
+                            <select name="repeat" class="w-full bg-gray-50 border border-gray-200 shadow-sm rounded-xl px-4 py-3.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#7559AC] font-medium appearance-none cursor-pointer">
+                                <option value="Tidak Ada">Tidak Ada Pengulangan (Hanya Sekali)</option>
+                                <option value="Harian">Harian (Tiap Hari)</option>
+                                <option value="Mingguan">Mingguan (Tiap Minggu)</option>
+                                <option value="Bulanan">Bulanan (Tiap Bulan)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="h-full">
+                    <div class="bg-gray-50 border border-gray-200 rounded-2xl h-full min-h-[300px] flex flex-col items-center justify-center text-gray-400 p-8 shadow-inner shadow-gray-200/50">
+                        <svg class="w-16 h-16 mb-4 opacity-50 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        <span class="text-sm font-semibold tracking-wide">Pilih video untuk melihat pratinjau</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- SECTION: YOUTUBE API -->
+            <div id="sectionApi" class="hidden grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-8">
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Video <span class="text-red-500">*</span></label>
+                        <select name="video" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none font-medium cursor-pointer shadow-sm" disabled>
+                            <option value="">Pilih file video...</option>
+                            <% videos.forEach(vid => { %><option value="<%= vid %>"><%= vid %></option><% }) %>
+                            <option value="dummy.mp4" class="text-orange-500">dummy.mp4 (Dummy Testing)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Judul Stream <span class="text-red-500">*</span></label>
+                        <input type="text" name="title" required placeholder="Masukkan judul stream..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium shadow-sm" disabled>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Deskripsi</label>
+                        <textarea name="description" rows="4" placeholder="Masukkan deskripsi stream..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 resize-none font-medium text-sm shadow-sm" disabled></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Privasi</label>
+                            <select name="privacy" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none font-medium cursor-pointer shadow-sm" disabled>
+                                <option>Public</option>
+                                <option selected>Unlisted</option>
+                                <option>Private</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Kategori</label>
+                            <select name="category" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none font-medium cursor-pointer shadow-sm" disabled>
+                                <option selected>People & Blogs</option>
+                                <option>Gaming</option>
+                                <option>Entertainment</option>
+                                <option>Education</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Tags</label>
+                        <div class="relative">
+                            <input type="text" name="tags" placeholder="Ketik tag dan tekan Enter..." class="w-full bg-gray-50 border border-gray-200 shadow-sm rounded-xl px-4 py-3.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium text-sm" disabled>
+                            <span class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 font-bold text-xs cursor-pointer">✕</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Channel (Terhubung API) <span class="text-red-500">*</span></label>
+                        <% if(channels && channels.length > 0) { %>
+                            <select name="channel_id" required class="w-full bg-white border border-gray-200 shadow-sm rounded-xl px-4 py-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 font-bold text-sm tracking-wide cursor-pointer" disabled>
+                                <% channels.forEach(ch => { %>
+                                    <option value="<%= ch.id %>">🎬 <%= ch.title %> (<%= ch.id %>)</option>
+                                <% }) %>
+                            </select>
+                        <% } else { %>
+                            <div class="bg-red-50 border border-red-100 rounded-xl p-4 flex items-center justify-center">
+                                 <span class="text-sm font-bold text-red-600">Belum ada channel terhubung. Buka Pengaturan via Google OAuth 2.</span>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Thumbnail <span class="text-xs text-gray-400 ml-1 font-normal">(Opsional)</span></label>
+                        <label for="thumbnailInput" class="bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl p-8 flex flex-col items-center justify-center hover:bg-gray-100 hover:border-gray-300 transition cursor-pointer group">
+                             <input type="file" id="thumbnailInput" name="thumbnail" accept="image/*" class="hidden" disabled onchange="document.getElementById('thumbLabel').innerText = this.files[0] ? this.files[0].name : 'Upload Thumbnail Gambar'">
+                             <svg class="w-12 h-12 text-gray-300 group-hover:text-gray-400 transition mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                             <span id="thumbLabel" class="text-sm font-bold text-gray-500 group-hover:text-gray-700 transition mb-1 w-full max-w-[200px] truncate text-center">Upload Thumbnail Gambar</span>
+                             <span class="text-xs font-semibold text-gray-400">Rekomendasi: 1280x720 (JPG/PNG)</span>
+                        </label>
+                    </div>
+
+                    <div class="space-y-4 pt-4 mt-8 border-t border-gray-100">
+                         <div class="flex items-center justify-between pb-3">
+                             <div class="flex items-center gap-3">
+                                 <span class="text-sm font-bold text-gray-700">Aktifkan Jadwal (Schedule)</span>
+                             </div>
+                             <div class="flex items-center">
+                                 <input type="checkbox" id="toggleSchedule" name="enable_schedule_api" class="hidden" checked disabled>
+                                 <label for="toggleSchedule" class="toggle-label"></label>
+                             </div>
+                         </div>
+                         <div class="flex items-center justify-between pb-4">
+                             <span class="text-sm font-bold text-gray-700">Aktifkan Monetisasi (Iklan)</span>
+                             <div class="flex items-center">
+                                 <input type="checkbox" id="toggleMonet" name="monetization" class="hidden" checked disabled>
+                                 <label for="toggleMonet" class="toggle-label"></label>
+                             </div>
+                         </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-4 bg-gray-50 p-5 rounded-xl border border-gray-100">
+                         <div>
+                             <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Pengulangan (API)</label>
+                             <select name="repeat" class="w-full bg-white border border-gray-200 shadow-sm rounded-lg px-3 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer font-medium text-sm" disabled>
+                                 <option value="Tidak Ada">Hanya Sekali</option>
+                                 <option value="Harian">Harian</option>
+                                 <option value="Mingguan">Mingguan</option>
+                                 <option value="Bulanan">Bulanan</option>
+                             </select>
+                         </div>
+                         <div>
+                             <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Waktu Mulai</label>
+                             <input type="datetime-local" name="start_time" class="w-full bg-white border border-gray-200 shadow-sm rounded-lg px-3 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium text-sm" disabled>
+                         </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Global Submit -->
+            <div class="mt-8 flex justify-end gap-4 border-t border-gray-100 pt-6">
+                 <button type="submit" class="bg-[#7559AC] hover:bg-[#624b91] text-white font-bold py-3.5 px-10 rounded-xl shadow-lg hover:-translate-y-0.5 transition-transform text-sm tracking-wide flex items-center gap-2">
+                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                     BUAT TUGAS LIVE
+                 </button>
+            </div>
+        </form>
+
+    </div>
+
+</main>
+
+<script>
+document.getElementById('toggleSchedule').addEventListener('change', function() {
+    document.querySelector('#sectionApi select[name="repeat"]').disabled = !this.checked;
+    document.querySelector('#sectionApi input[name="start_time"]').disabled = !this.checked;
+});
+
+function setMode(mode) {
+    const tabManual = document.getElementById('tabManual');
+    const tabApi = document.getElementById('tabApi');
+    const sectionManual = document.getElementById('sectionManual');
+    const sectionApi = document.getElementById('sectionApi');
+    const tabModeField = document.getElementById('tabMode');
+
+    if (mode === 'manual') {
+        // Tab Active
+        tabManual.className = "py-3 rounded-lg bg-white shadow-sm text-[#7559AC] font-bold flex justify-center items-center gap-2 cursor-pointer transition ring-1 ring-gray-200";
+        tabApi.className = "py-3 rounded-lg bg-transparent hover:bg-gray-100/50 text-gray-500 font-bold flex justify-center items-center gap-2 cursor-pointer transition";
+        
+        sectionManual.classList.remove('hidden');
+        sectionApi.classList.add('hidden');
+        
+        document.querySelectorAll('#sectionApi [name], #sectionApi input, #sectionApi select, #sectionApi textarea').forEach(el => el.disabled = true);
+        document.querySelectorAll('#sectionManual [name]').forEach(el => el.disabled = false);
+        
+        tabModeField.value = 'manual';
+    } else {
+        // Tab Active
+        tabApi.className = "py-3 rounded-lg bg-white shadow-sm text-[#E02424] font-bold flex justify-center items-center gap-2 cursor-pointer transition ring-1 ring-gray-200";
+        tabManual.className = "py-3 rounded-lg bg-transparent hover:bg-gray-100/50 text-gray-500 font-bold flex justify-center items-center gap-2 cursor-pointer transition";
+        
+        sectionManual.classList.add('hidden');
+        sectionApi.classList.remove('hidden');
+        
+        document.querySelectorAll('#sectionManual [name]').forEach(el => el.disabled = true);
+        document.querySelectorAll('#sectionApi [name]').forEach(el => el.disabled = false);
+        
+        // Sync schedule fields state
+        const scheduleOn = document.getElementById('toggleSchedule').checked;
+        document.querySelector('#sectionApi select[name="repeat"]').disabled = !scheduleOn;
+        document.querySelector('#sectionApi input[name="start_time"]').disabled = !scheduleOn;
+        
+        tabModeField.value = 'api';
+    }
+}
+</script>
+
+</body>
+</html>

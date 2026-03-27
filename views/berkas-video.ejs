@@ -1,0 +1,83 @@
+<%- include('partials/head') %>
+<%- include('partials/sidebar') %>
+
+<main class="flex-1 overflow-y-auto p-8 bg-gray-50 h-full relative">
+
+    <!-- Upload Form Panel -->
+    <div class="bg-white shadow-sm border border-gray-200 rounded-2xl overflow-hidden mb-8">
+        <div class="bg-purple-600 text-white px-6 py-4 font-bold flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                Download File ke Server (VPS)
+            </div>
+        </div>
+        <div class="p-6">
+            <form action="/download-gdrive" method="POST">
+                <p class="text-sm text-gray-600 mb-2">Tautan Langsung / Google Drive (Pastikan Publik):</p>
+                <div class="flex gap-4">
+                    <input type="text" name="url" class="flex-1 px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none" placeholder="Silakan tempel URL video (.mp4/.mkv) di sini bosque..." required>
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-xl shadow-md transition whitespace-nowrap flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" /></svg>
+                        DOWNLOAD
+                    </button>
+                </div>
+            </form>
+            
+            <div class="mt-6 border-t border-gray-100 pt-6">
+                 <form action="/upload-local" method="POST" enctype="multipart/form-data" class="flex gap-4 items-center">
+                    <input type="file" name="video_file" accept="video/mp4,video/x-matroska" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 transition pl-0" required>
+                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-6 rounded-xl shadow transition whitespace-nowrap">Upload Manual</button>
+                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video List Panel -->
+    <div class="bg-white shadow-sm border border-gray-200 rounded-2xl overflow-hidden">
+        <div class="bg-purple-600 text-white px-6 py-4 font-bold flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                File yang Diunduh
+            </div>
+            <div class="relative">
+                <input type="text" placeholder="Cari nama file..." class="px-4 py-1.5 rounded-full text-sm text-gray-800 focus:outline-none w-64 border border-purple-400 bg-purple-50">
+            </div>
+        </div>
+        
+        <div class="p-0">
+            <table class="w-full text-left border-collapse">
+                <tbody>
+                    <% if (videos.length === 0) { %>
+                        <tr><td class="p-6 text-center text-gray-500" colspan="2">Belum ada video. Silakan download/upload video.</td></tr>
+                    <% } else { %>
+                        <% videos.forEach(vid => { %>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
+                                <td class="p-6 font-semibold text-gray-700"><%= vid %></td>
+                                <td class="p-6 text-right">
+                                    <div class="flex gap-2 justify-end">
+                                        <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-2 px-4 rounded-full flex items-center gap-1 shadow-sm">
+                                            👁️ Pratinjau
+                                        </button>
+                                        <button class="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 text-xs font-bold py-2 px-4 rounded-full flex items-center gap-1 shadow-sm">
+                                            📝 Edit
+                                        </button>
+                                        <form action="/hapus-video" method="POST" class="inline">
+                                            <input type="hidden" name="filename" value="<%= vid %>">
+                                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-full flex items-center gap-1 shadow-sm">
+                                                🗑️ Hapus
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>
